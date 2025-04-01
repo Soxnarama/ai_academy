@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - AI Academy</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <img src="/images/logo.png" alt="AI Academy Logo" width="100">
+        <h1>AI Academy</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/about">À propos</a></li>
+                <li><a href="/courses">Cours</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Contactez-nous</h2>
+        <p>Nous serions ravis de répondre à vos questions ou commentaires.</p>
+        <form action="/contact" method="post">
+            <label for="name">Nom :</label><br>
+            <input type="text" id="name" name="name" required><br>
+            <label for="phone">Téléphone :</label><br>
+            <input type="text" id="phone" name="phone"><br>
+            <label for="email">Email :</label><br>
+            <input type="email" id="email" name="email" required><br>
+            <label for="message">Message :</label><br>
+            <textarea id="message" name="message" required></textarea><br>
+            <input type="submit" value="Envoyer">
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 AI Academy. Tous droits réservés.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

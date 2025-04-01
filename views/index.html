@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Academy</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <img src="/images/logo.png" alt="AI Academy Logo" width="100">
+        <h1>AI Academy</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/about">À propos</a></li>
+                <li><a href="/courses">Cours</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Messages récents</h2>
+        <div id="message-container">
+            <!-- Les messages seront affichés ici dynamiquement -->
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 AI Academy. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Récupération des messages via l'API
+        fetch('/api/messages')
+            .then(response => response.json())
+            .then(data => {
+                const messageContainer = document.getElementById('message-container');
+                data.forEach(message => {
+                    const messageElement = document.createElement('p');
+                    messageElement.textContent = message.text;
+                    messageContainer.appendChild(messageElement);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+    </script>
+</body>
+</html>
