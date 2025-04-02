@@ -25,20 +25,19 @@ module.exports = {
       res.end(JSON.stringify({ error: "Cours non trouvé" }));
     }
   },
-  getCoursesByTitle: (req, res) => {
-    const query = new URLSearchParams(req.url.split('?')[1]);
-    const title = query.get("title");
-
-    if (!title) {
-        res.writeHead(httpStatus.BAD_REQUEST, contentTypes.json);
+  getCoursesByTitle: (req, res , title_book) => {
+    const decodedTitle = decodeURIComponent(title_book);
+    console.log("Decoded title:", decodedTitle);
+    if (decodedTitle=="") {
         res.end(JSON.stringify({ error: "Titre non fourni" }));
         return;
     }
 
     const matchingCourses = courses.filter(course => 
-        course.title.toLowerCase().includes(title.toLowerCase())
+        course.title.toLowerCase().includes(decodedTitle.toLowerCase())
     );
-
+    console.log(matchingCourses);
+    console.log(matchingCourses.length);
     if (matchingCourses.length > 0) {
         res.writeHead(httpStatus.OK, contentTypes.json);
         res.end(JSON.stringify(matchingCourses));

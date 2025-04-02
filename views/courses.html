@@ -38,9 +38,10 @@
                 alert("Veuillez entrer un titre de cours pour la recherche.");
                 return;
             }
-    
-            fetch(`/api/courses/search?title=${encodeURIComponent(title)}`)
+            fetch(`/api/courses/${encodeURIComponent(title)}`)
                 .then(response => {
+                    // Vérification de la réponse du serveur
+                    console.log("Response:", response);
                     console.log(response);
                     if (!response.ok) {
                         throw new Error("Erreur lors de la recherche");

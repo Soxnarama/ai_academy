@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "siyaar" : "nodemon main.js"
+    "siyaar": "nodemon main.js"
   },
   "keywords": [
     "AI",
@@ -15,6 +15,7 @@
   "author": "soxnarama",
   "license": "ISC",
   "dependencies": {
-    "http-status-codes": "^2.3.0"
+    "http-status-codes": "^2.3.0",
+    "nodemon": "^3.1.9"
   }
 }
