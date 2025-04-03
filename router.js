@@ -13,6 +13,7 @@ const routes = {
 
 // Gestionnaire de routes
 const handle = (req, res) => {
+  console.log(`Requête reçue: ${req.method} ${req.url}`);
   try {
     // Vérifier si l'URL demande une ressource statique
     if (req.url.match(/^\/public\//) && req.method === "GET") {
@@ -23,10 +24,23 @@ const handle = (req, res) => {
 
     // Extraire l'ID du cours si l'URL est au format /api/courses/:id
     if (req.url.match(/^\/api\/courses\/\d+$/) && req.method === "GET") {
+      console.log("URL de cours trouvée");
       const id = req.url.split("/").pop();
+      console.log(`ID du cours: ${id}`);
       coursesController.getCourseById(req, res, id);
       return;
     }
+
+    // Vérifier si l'URL est au format /api/courses/:title
+    if (req.url.match(/^\/api\/courses\/[^/]+$/) && req.method === "GET") {
+      console.log("URL de cours trouvée");
+      const title = req.url.split("/").pop();
+      console.log(`Titre du cours: ${title}`);
+      coursesController.getCoursesByTitle(req, res, title);
+      return;
+    }
+
+
 
     // Rediriger les URLs /css, /js, /images vers /public/css, etc.
     if (req.url.match(/^\/(css|js|images)\//) && req.method === "GET") {
@@ -40,6 +54,7 @@ const handle = (req, res) => {
       routes[req.method][req.url](req, res);
     } else {
       // Si aucune route ne correspond, servir la page d'erreur
+      console.log("Aucune route correspondante trouvée, affichage de la page d'erreur.");
       homeController.getError(req, res);
     }
 
@@ -63,6 +78,7 @@ get("/", homeController.getIndex);
 get("/about", homeController.getAbout);
 get("/courses", coursesController.getCourses);
 get("/api/courses", coursesController.getCoursesAPI);
+get("/api/courses/:title", coursesController.getCoursesByTitle);
 get("/contact", contactController.getContact);
 post("/contact", contactController.submitContact);
 get("/api/courses/search", coursesController.getCoursesByTitle);
