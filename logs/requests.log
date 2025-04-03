@@ -1,0 +1,6 @@
+[2025-04-03T10:45:26.675Z] GET /api/courses/AI - IP: ::1
+[2025-04-03T10:45:36.026Z] GET /api/courses/IA - IP: ::1
+&&[2025-04-03T10:53:09.851Z] GET /about - IP: ::1
+[2025-04-03T10:53:10.040Z] GET /css/styles.css - IP: ::1
+[2025-04-03T10:53:10.050Z] GET /images/logo.png - IP: ::1
+[2025-04-03T10:53:10.290Z] GET /js/main.js - IP: ::1
