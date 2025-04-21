@@ -9,6 +9,12 @@ exports.pageNotFoundError = (req, res) => {
     message: "La page demandée n'existe pas"
   });
 };
+exports.notFound = (req, res) => {
+  res.status(404).render("404", {
+    pageTitle: "Page introuvable"
+  });
+};
+
 
 exports.internalServerError = (error, req, res, next) => {
   let errorCode = httpStatus.INTERNAL_SERVER_ERROR;

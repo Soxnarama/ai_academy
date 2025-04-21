@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des abonnés</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>Liste des abonnés</h1>
+
+  <!-- Formulaire de recherche -->
+  <form action="/subscribers/search" method="GET">
+    <input type="text" name="searchTerm" placeholder="Nom ou Code postal" required>
+    <button type="submit">Rechercher</button>
+  </form>
+
+  <!-- Lien vers le formulaire d'inscription -->
+  <p><a href="/subscribers/new">Ajouter un nouvel abonné</a></p>
+
+  <!-- Table des abonnés -->
+  <table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Code postal</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (subscribers.length > 0) { %>
+        <% subscribers.forEach(subscriber => { %>
+          <tr>
+            <td><%= subscriber.name %></td>
+            <td><%= subscriber.email %></td>
+            <td><%= subscriber.zipCode %></td>
+            <td>
+                <a href="/subscribers/<%= subscriber._id %>">Voir</a>
+                <a href="/subscribers/edit/<%= subscriber._id %>">Modifier</a> |
+              <a href="/subscribers/delete/<%= subscriber._id %>" onclick="return confirm('Confirmer la suppression ?')">Supprimer</a>
+            </td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr>
+          <td colspan="4">Aucun abonné trouvé.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</body>
+</html>
