@@ -19,32 +19,103 @@ const courses = [
       level: "Avancé"
     }
   ];
-  
-  exports.index = (req, res) => {
-    res.render("index", { pageTitle: "Accueil" });
+
+exports.index = (req, res) => {
+  const flashMessages = {
+    success: req.flash('success'),
+    error: req.flash('error'),
+    info: req.flash('info')
   };
-  
-  exports.about = (req, res) => {
-    res.render("about", { pageTitle: "À propos" });
+
+  res.render("index", {
+    pageTitle: "Accueil",
+    messages: flashMessages
+  });
+};
+
+exports.about = (req, res) => {
+  const flashMessages = {
+    success: req.flash('success'),
+    error: req.flash('error'),
+    info: req.flash('info')
   };
-  
-  exports.courses = (req, res) => {
-    res.render("courses", {
-      pageTitle: "Nos Cours",
-      courses: courses
-    });
+
+  res.render("about", {
+    pageTitle: "À propos",
+    messages: flashMessages
+  });
+};
+
+exports.courses = (req, res) => {
+  const { level, maxPrice } = req.query;
+  let filteredCourses = [...courses]; // Crée une copie des cours pour ne pas altérer la donnée initiale
+
+  if (level) {
+    filteredCourses = filteredCourses.filter(course => course.level.toLowerCase() === level.toLowerCase());
+  }
+
+  if (maxPrice) {
+    filteredCourses = filteredCourses.filter(course => course.price <= parseFloat(maxPrice));
+  }
+
+  const flashMessages = {
+    success: req.flash('success'),
+    error: req.flash('error'),
+    info: req.flash('info')
   };
-  
-  exports.contact = (req, res) => {
-    res.render("contact", { pageTitle: "Contact" });
+
+  res.render("courses", {
+    pageTitle: "Nos Cours",
+    courses: filteredCourses,
+    selectedLevel: level || '',
+    selectedPrice: maxPrice || '',
+    messages: flashMessages
+  });
+};
+
+exports.contact = (req, res) => {
+  const flashMessages = {
+    success: req.flash('success'),
+    error: req.flash('error'),
+    info: req.flash('info')
   };
+
+  res.render("contact", {
+    pageTitle: "Contact",
+    messages: flashMessages
+  });
+};
+
+exports.processContact = (req, res) => {
+  const { name, email, course, message } = req.body;
+
+  // Exemple de validation
+  if (!name || !email) {
+    req.flash("error", "Veuillez remplir tous les champs obligatoires.");
+    return res.redirect("/contact");
+  }
   
-  exports.processContact = (req, res) => {
-    console.log("Données du formulaire reçues:");
-    console.log(req.body);
-    res.render("thanks", {
-      pageTitle: "Merci",
-      formData: req.body
-    });
+  if (message && message.length < 10) {
+    req.flash("error", "Le message doit contenir au moins 10 caractères.");
+    return res.redirect("/contact");
+  }
+
+  req.flash("success", "Message envoyé avec succès !");
+  res.render("thanks", {
+    pageTitle: "Merci",
+    formData: req.body
+  });
+};
+
+exports.faq = (req, res) => {
+  const flashMessages = {
+    success: req.flash('success'),
+    error: req.flash('error'),
+    info: req.flash('info')
   };
-  
+
+  res.render("faq", {
+    pageTitle: "FAQ",
+    messages: flashMessages
+  });
+};

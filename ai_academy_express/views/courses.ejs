@@ -13,3 +13,18 @@
     </div>
   <% }); %>
 </div>
+<form method="get" action="/courses" class="filter-form">
+    <label for="level">Niveau :</label>
+    <select name="level" id="level">
+      <option value="">Tous</option>
+      <option value="Débutant" <%= selectedLevel === 'Débutant' ? 'selected' : '' %>>Débutant</option>
+      <option value="Intermédiaire" <%= selectedLevel === 'Intermédiaire' ? 'selected' : '' %>>Intermédiaire</option>
+      <option value="Avancé" <%= selectedLevel === 'Avancé' ? 'selected' : '' %>>Avancé</option>
+    </select>
+  
+    <label for="maxPrice">Prix maximum (€):</label>
+    <input type="number" name="maxPrice" id="maxPrice" value="<%= selectedPrice %>" min="0">
+  
+    <button type="submit" class="btn">Filtrer</button>
+  </form>
+  

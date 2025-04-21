@@ -1,0 +1,18 @@
+<h2>Foire Aux Questions (FAQ)</h2>
+<p>Vous avez une question ? Voici les réponses aux plus fréquentes :</p>
+<section class="faq">
+  <% const faqs = [
+    { question: "Quels sont les prérequis pour suivre un cours ?", answer: "Aucun prérequis n’est nécessaire pour les cours débutants." },
+    { question: "Les cours sont-ils certifiés ?", answer: "Oui, chaque cours offre un certificat officiel à la fin." },
+    { question: "Comment puis-je m’inscrire à un cours ?", answer: "Rendez-vous sur la page 'Contact' et remplissez le formulaire." },
+    { question: "Est-ce que je peux suivre les cours à mon rythme ?", answer: "Oui, tous les cours sont disponibles en format asynchrone." },
+    { question: "Quels modes de paiement acceptez-vous ?", answer: "Nous acceptons les paiements par carte bancaire et PayPal." }
+  ]; %>
+
+  <% faqs.forEach(faq => { %>
+    <div class="faq-item">
+      <h3><%= faq.question %></h3>
+      <p><%= faq.answer %></p>
+    </div>
+  <% }); %>
+</section>
