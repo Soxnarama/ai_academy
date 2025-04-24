@@ -1,59 +1,80 @@
+
 const express = require("express");
-const path = require('path');
 const layouts = require("express-ejs-layouts");
-const mongoose = require("mongoose"); // Ajout de Mongoose
+const mongoose = require("mongoose");
+const methodOverride = require("method-override");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+
+
+// Contrôleurs
 const homeController = require("./controllers/homeController");
 const errorController = require("./controllers/errorController");
 const subscribersController = require("./controllers/subscribersController");
-
-const session = require("express-session");
-const flash = require("connect-flash");
+const usersController = require("./controllers/usersController");
+const coursesController = require("./controllers/coursesController");
+const authController = require("./controllers/authController");
 
 // Configuration de la connexion à MongoDB
-mongoose.connect("mongodb://localhost:27017/ai_academy");
-
-
+mongoose.connect("mongodb://localhost:27017/ai_academy", {
+  useNewUrlParser: true,
+});
 const db = mongoose.connection;
-
-// Vérification de la connexion
 db.once("open", () => {
   console.log("Connexion réussie à MongoDB en utilisant Mongoose!");
 });
 
-// Initialisation de l'application Express
 const app = express();
 
-// Configuration de l'application Express
-app.set("view engine", "ejs"); // Définir EJS comme moteur de template
-app.use(layouts); // Utilisation du middleware express-ejs-layouts
-app.use(express.urlencoded({ extended: true })); // Middleware pour parser les données de formulaire
-app.use(express.json()); // Middleware pour parser les données JSON
+// Configuration de l'application
+app.set("port", process.env.PORT || 3000);
+app.set("view engine", "ejs");
+app.use(express.static("public"));
+app.use(layouts);
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(
+  methodOverride("_method", {
+    methods: ["POST", "GET"],
+  })
+);
 
-app.use(session({
-  secret: "secretKey123", // à modifier en prod
-  resave: false,
-  saveUninitialized: true
-}));
+// Configuration des cookies et des sessions
+app.use(cookieParser("secret_passcode"));
+app.use(
+  session({
+    secret: "secret_passcode",
+    cookie: {
+      maxAge: 4000000,
+    },
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
-// Flash messages
+// Configuration des messages flash
 app.use(flash());
 
+// Configuration de Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Configuration du User model pour Passport
+const User = require("./models/user");
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Middleware global pour les variables de session
 app.use((req, res, next) => {
-  res.locals.messages = {
-    success: req.flash('success'),
-    error: req.flash('error'),
-    info: req.flash('info')
-  };
+  res.locals.flashMessages = req.flash();
+  res.locals.loggedIn = req.isAuthenticated();
+  res.locals.currentUser = req.user;
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use((req, res, next) => {
-  res.locals.pageTitle = "Page";
-  res.locals.messages = req.flash(); // si tu utilises connect-flash
-  next();
-});
 
 
 // Routes
@@ -74,6 +95,32 @@ app.get("/subscribers/delete/:id", subscribersController.deleteSubscriber);
 app.get('/subscribers/edit/:id', subscribersController.editSubscriber);
 app.post("/subscribers/:id/update", subscribersController.updateSubscriber);
 app.get("/subscribers/edit/:id", subscribersController.editSubscriber);
+// Routes pour les utilisateurs
+app.get("/users", usersController.index, usersController.indexView);
+app.get("/users/new", usersController.new);
+app.post("/users/create", usersController.create, usersController.redirectView);
+app.get("/users/:id", usersController.show, usersController.showView);
+app.get("/users/:id/edit", usersController.edit);
+app.put("/users/:id/update", usersController.update, usersController.redirectView);
+app.delete("/users/:id/delete", usersController.delete, usersController.redirectView);
+// Routes pour les cours
+app.get("/courses", coursesController.index, coursesController.indexView);
+app.get("/courses/new", coursesController.new);
+app.post("/courses/create", coursesController.create, coursesController.redirectView);
+app.get("/courses/:id", coursesController.show, coursesController.showView);
+app.get("/courses/:id/edit", coursesController.edit);
+app.put("/courses/:id/update", coursesController.update, coursesController.redirectView);
+app.delete("/courses/:id/delete", coursesController.delete, coursesController.redirectView);
+//pour se loger
+app.get("/login", authController.login);
+app.post("/login", authController.authenticate);
+app.get("/logout", authController.logout, usersController.redirectView);
+app.get("/signup", authController.signup);
+app.post("/signup", authController.register, usersController.redirectView);
+// Routes protégées - accessibles uniquement aux utilisateurs connectés
+app.use("/users", authController.ensureLoggedIn);
+app.use("/courses/new", authController.ensureLoggedIn);
+app.use("/courses/:id/edit", authController.ensureLoggedIn);
 
 
 
