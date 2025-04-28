@@ -1,15 +1,11 @@
 const User = require("../models/user");
 const passport = require("passport");
 
-// Auteur : Dr. E_H_B TOURE - Cours : IPDL-UCAD
-
 module.exports = {
-  // Affiche le formulaire de connexion
   login: (req, res) => {
     res.render("auth/login");
   },
 
-  // Gère l'authentification des utilisateurs
   authenticate: passport.authenticate("local", {
     failureRedirect: "/login",
     failureFlash: "Votre email ou mot de passe est incorrect.",
@@ -17,20 +13,19 @@ module.exports = {
     successFlash: "Vous êtes maintenant connecté!"
   }),
 
-  // Déconnecte l'utilisateur
   logout: (req, res, next) => {
-    req.logout();
-    req.flash("success", "Vous avez été déconnecté avec succès!");
-    res.locals.redirect = "/";
-    next();
+    req.logout(err => {
+      if (err) return next(err);
+      req.flash("success", "Vous avez été déconnecté avec succès!");
+      res.locals.redirect = "/";
+      next();
+    });
   },
 
-  // Affiche le formulaire d'inscription
   signup: (req, res) => {
     res.render("auth/signup");
   },
 
-  // Crée un nouvel utilisateur et l'authentifie
   register: (req, res, next) => {
     if (req.skip) return next();
 
@@ -56,7 +51,6 @@ module.exports = {
     });
   },
 
-  // Middleware pour vérifier si l'utilisateur est connecté
   ensureLoggedIn: (req, res, next) => {
     if (req.isAuthenticated()) {
       next();

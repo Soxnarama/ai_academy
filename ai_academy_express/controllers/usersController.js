@@ -1,17 +1,16 @@
 const User = require("../models/user");
+const jsonWebToken = require("jsonwebtoken");
+const token_key = process.env.TOKEN_KEY || "secretTokenKey";
 
-// Fonction utilitaire pour extraire les paramètres utilisateur du corps de la requête
-const getUserParams = body => {
-  return {
-    name: {
-      first: body.first,
-      last: body.last
-    },
-    email: body.email,
-    password: body.password,
-    zipCode: body.zipCode
-  };
-};
+const getUserParams = body => ({
+  name: {
+    first: body.first,
+    last: body.last
+  },
+  email: body.email,
+  password: body.password,
+  zipCode: body.zipCode
+});
 
 module.exports = {
   index: (req, res, next) => {
@@ -27,14 +26,19 @@ module.exports = {
   },
 
   indexView: (req, res) => {
-    res.render("users/index", { users: res.locals.users });
+    res.render("users/index", {
+      pageTitle: "Liste des utilisateurs"
+    });
   },
 
   new: (req, res) => {
-    res.render("users/new");
+    res.render("users/new", {
+      pageTitle: "Créer un utilisateur"
+    });
   },
 
   create: (req, res, next) => {
+    console.log("✅ Données POST :", req.body);
     let userParams = getUserParams(req.body);
     User.create(userParams)
       .then(user => {
@@ -43,9 +47,9 @@ module.exports = {
         next();
       })
       .catch(error => {
-        console.log(`Erreur lors de la création de l'utilisateur: ${error.message}`);
+        console.error(`Erreur création utilisateur : ${error.message}`);
         res.locals.redirect = "/users/new";
-        next();
+        next(error);
       });
   },
 
@@ -63,13 +67,15 @@ module.exports = {
         next();
       })
       .catch(error => {
-        console.log(`Erreur lors de la récupération de l'utilisateur par ID: ${error.message}`);
+        console.log(`Erreur show utilisateur: ${error.message}`);
         next(error);
       });
   },
 
   showView: (req, res) => {
-    res.render("users/show");
+    res.render("users/show", {
+      pageTitle: `Profil de ${res.locals.user.fullName}`
+    });
   },
 
   edit: (req, res, next) => {
@@ -77,28 +83,28 @@ module.exports = {
     User.findById(userId)
       .then(user => {
         res.render("users/edit", {
-          user: user
+          user: user,
+          pageTitle: `Modifier ${user.fullName}`
         });
       })
       .catch(error => {
-        console.log(`Erreur lors de la récupération de l'utilisateur par ID: ${error.message}`);
+        console.log(`Erreur edition utilisateur: ${error.message}`);
         next(error);
       });
   },
 
   update: (req, res, next) => {
     let userId = req.params.id,
-      userParams = getUserParams(req.body);
-    User.findByIdAndUpdate(userId, {
-      $set: userParams
-    })
+        userParams = getUserParams(req.body);
+
+    User.findByIdAndUpdate(userId, { $set: userParams })
       .then(user => {
         res.locals.redirect = `/users/${userId}`;
         res.locals.user = user;
         next();
       })
       .catch(error => {
-        console.log(`Erreur lors de la mise à jour de l'utilisateur par ID: ${error.message}`);
+        console.log(`Erreur update utilisateur: ${error.message}`);
         next(error);
       });
   },
@@ -111,8 +117,35 @@ module.exports = {
         next();
       })
       .catch(error => {
-        console.log(`Erreur lors de la suppression de l'utilisateur par ID: ${error.message}`);
-        next();
+        console.log(`Erreur suppression utilisateur: ${error.message}`);
+        next(error);
       });
+  },validate: (req, res, next) => {
+    if (!req.body.email || !req.body.password) {
+      req.flash("error", "Email et mot de passe requis.");
+      res.locals.redirect = "/users/new";
+      return next(new Error("Validation échouée"));
+    }
+    next();
+  },  
+
+  getApiToken: (req, res) => {
+    if (req.user) {
+    let signedToken = jsonWebToken.sign(
+    {
+    data: req.user._id,
+    exp: new Date().setDate(new Date().getDate() + 30) // Token valable 30 jours
+    },
+    token_key
+    );
+   
+    res.render("users/api-token", {
+    token: signedToken
+    });
+    } else {
+    req.flash("error", "Vous devez être connecté pour obtenir un token API.");
+    res.redirect("/login");
+    }
   }
+
 };

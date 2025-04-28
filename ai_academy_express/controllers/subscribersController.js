@@ -1,136 +1,116 @@
 const Subscriber = require("../models/subscriber");
 
-exports.getAllSubscribers = (req, res, next) => {
-  Subscriber.find({})
-    .exec()
-    .then(subscribers => {
-      res.render("subscribers/index", {
-        subscribers: subscribers
+const getSubscriberParams = body => ({
+  name: body.name,
+  email: body.email,
+  zipCode: body.zipCode
+});
+
+module.exports = {
+  index: (req, res, next) => {
+    Subscriber.find({})
+      .then(subscribers => {
+        res.locals.subscribers = subscribers;
+        next();
+      })
+      .catch(error => {
+        console.log(`Erreur lors de la récupération des abonnés: ${error.message}`);
+        next(error);
       });
-    })
-    .catch(error => {
-      console.log(`Erreur lors de la récupération des abonnés: ${error.message}`);
-      next(error);
+  },
+
+  indexView: (req, res) => {
+    res.render("subscribers/index", {
+      pageTitle: "Liste des abonnés"
     });
-};
+  },
 
-exports.getSubscriptionPage = (req, res) => {
-  res.render("subscribers/new");
-};
-
-exports.saveSubscriber = (req, res) => {
-  let newSubscriber = new Subscriber({
-    name: req.body.name,
-    email: req.body.email,
-    zipCode: req.body.zipCode
-  });
-
-  newSubscriber.save()
-    .then(result => {
-      res.render("subscribers/thanks");
-    })
-    .catch(error => {
-      if (error) res.send(error);
+  new: (req, res) => {
+    res.render("subscribers/new", {
+      pageTitle: "Nouvel abonnement"
     });
-};
+  },
 
-exports.show = (req, res, next) => {
-  let subscriberId = req.params.id;
-
-  Subscriber.findById(subscriberId)
-    .then(subscriber => {
-      res.render("subscribers/show", {
-        subscriber: subscriber
+  create: (req, res, next) => {
+    let subscriberParams = getSubscriberParams(req.body);
+    Subscriber.create(subscriberParams)
+      .then(subscriber => {
+        res.locals.redirect = "/subscribers";
+        res.locals.subscriber = subscriber;
+        next();
+      })
+      .catch(error => {
+        console.log(`Erreur lors de la création: ${error.message}`);
+        res.locals.redirect = "/subscribers/new";
+        next(error);
       });
-    })
-    .catch(error => {
-      console.log(`Erreur lors de la récupération d'un abonné par ID: ${error.message}`);
-      next(error);
+  },
+
+  redirectView: (req, res, next) => {
+    let redirectPath = res.locals.redirect;
+    if (redirectPath) res.redirect(redirectPath);
+    else next();
+  },
+
+  show: (req, res, next) => {
+    let subscriberId = req.params.id;
+    Subscriber.findById(subscriberId)
+      .then(subscriber => {
+        res.locals.subscriber = subscriber;
+        next();
+      })
+      .catch(error => {
+        console.log(`Erreur lors de la récupération d’un abonné: ${error.message}`);
+        next(error);
+      });
+  },
+
+  showView: (req, res) => {
+    res.render("subscribers/show", {
+      pageTitle: `Abonné ${res.locals.subscriber.name}`
     });
+  },
+
+  edit: (req, res, next) => {
+    Subscriber.findById(req.params.id)
+      .then(subscriber => {
+        res.render("subscribers/edit", {
+          subscriber: subscriber,
+          pageTitle: `Modifier ${subscriber.name}`
+        });
+      })
+      .catch(error => {
+        console.log(`Erreur édition abonné: ${error.message}`);
+        next(error);
+      });
+  },
+
+  update: (req, res, next) => {
+    let subscriberId = req.params.id,
+        subscriberParams = getSubscriberParams(req.body);
+
+    Subscriber.findByIdAndUpdate(subscriberId, { $set: subscriberParams })
+      .then(subscriber => {
+        res.locals.redirect = `/subscribers/${subscriberId}`;
+        res.locals.subscriber = subscriber;
+        next();
+      })
+      .catch(error => {
+        console.log(`Erreur mise à jour abonné: ${error.message}`);
+        next(error);
+      });
+  },
+
+  delete: (req, res, next) => {
+    let subscriberId = req.params.id;
+    Subscriber.findByIdAndRemove(subscriberId)
+      .then(() => {
+        res.locals.redirect = "/subscribers";
+        next();
+      })
+      .catch(error => {
+        console.log(`Erreur suppression abonné: ${error.message}`);
+        next(error);
+      });
+  }
 };
-// Fonction pour supprimer un abonné
-exports.deleteSubscriber = async (req, res) => {
-    try {
-      const subscriber = await Subscriber.findByIdAndDelete(req.params.id);
-      if (!subscriber) {
-        return res.status(404).send('Abonné non trouvé');
-      }
-      res.redirect('/subscribers');  // Redirige vers la page des abonnés après suppression
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Erreur lors de la suppression');
-    }
-  };
-  // Afficher le formulaire de modification d'un abonné
-// Afficher le formulaire de modification d'un abonné
-exports.editSubscriber = async (req, res) => {
-    try {
-        const subscriber = await Subscriber.findById(req.params.id);
-        res.render('subscribers/editSubscriber', { subscriber });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Erreur lors du chargement de l\'abonné');
-    }
-};
-
-// Traiter la modification de l'abonné
-exports.updateSubscriber = async (req, res) => {
-    try {
-        const { name, email, zipCode } = req.body;
-
-        // Validation simple
-        if (!name || !email || !zipCode) {
-            return res.render('subscribers/edit', {
-                subscriber: req.body,
-                error: 'Tous les champs doivent être remplis.'
-            });
-        }
-
-        const updatedSubscriber = await Subscriber.findByIdAndUpdate(req.params.id, {
-            name,
-            email,
-            zipCode
-        }, { new: true });
-
-        res.redirect('/subscribers'); // Redirige vers la liste des abonnés après la mise à jour
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Erreur lors de la mise à jour de l\'abonné');
-    }
-};
-
-// Fonction pour rechercher des abonnés
-exports.searchSubscribers = async (req, res) => {
-    const { searchTerm } = req.query;
-    console.log('Term de recherche:', searchTerm);
-  
-    try {
-      // Vérifie si searchTerm est un nombre pour zipCode
-      const searchTermIsNumber = !isNaN(searchTerm);
-      const searchConditions = {
-        $or: [
-          { name: new RegExp(searchTerm, 'i') }, // Recherche par nom (en utilisant RegExp)
-        ]
-      };
-  
-      // Si searchTerm est un nombre, ajoute une condition pour le zipCode
-      if (searchTermIsNumber) {
-        searchConditions.$or.push({ zipCode: searchTerm });
-      }
-  
-      const subscribers = await Subscriber.find(searchConditions);
-  
-      if (subscribers.length === 0) {
-        console.log('Aucun abonné trouvé');
-      }
-  
-      res.render('subscribers', { subscribers });
-    } catch (err) {
-      console.error('Erreur lors de la recherche d\'abonnés:', err);
-      res.status(500).send('Erreur lors de la recherche d\'abonnés');
-    }
-  };
-  
-  
-  
-
