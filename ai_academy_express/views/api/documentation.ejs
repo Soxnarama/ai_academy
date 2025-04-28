@@ -1,0 +1,94 @@
+<h1>Documentation de l'API AI Academy</h1>
+
+<div class="api-doc">
+  <h2>Introduction</h2>
+  <p>
+    Bienvenue dans la documentation de l'API AI Academy. Cette API vous permet d'interagir avec les données de notre application, y compris les utilisateurs, les cours et les abonnés.
+  </p>
+
+  <h2>Authentification</h2>
+  <p>
+    Toutes les requêtes à l'API nécessitent un token d'authentification.
+  </p>
+  <ol>
+    <li>Connectez-vous et accédez à la page "Mon Token API" dans votre profil.</li>
+    <li>Ou faites une requête POST à <code>/api/login</code> avec vos identifiants.</li>
+  </ol>
+
+  <h3>Exemple de requête :</h3>
+  <pre>
+POST /api/login
+Content-Type: application/json
+
+{
+  "email": "exemple@email.com",
+  "password": "votre-mot-de-passe"
+}
+  </pre>
+
+  <h3>Réponse :</h3>
+  <pre>
+{
+  "success": true,
+  "token": "votre-token-jwt",
+  "user": {
+    "id": "id-utilisateur",
+    "name": "Nom Complet",
+    "email": "email"
+  }
+}
+  </pre>
+
+  <h2>Utilisation du token</h2>
+  <ul>
+    <li>En-tête HTTP : <code>Authorization: Bearer votre-token</code></li>
+    <li>Paramètre de requête : <code>?apiToken=votre-token</code></li>
+  </ul>
+
+  <h2>Endpoints</h2>
+
+  <h3>Utilisateurs</h3>
+  <ul>
+    <li><code>GET /api/users</code></li>
+    <li><code>GET /api/users/:id</code></li>
+    <li><code>POST /api/users</code></li>
+    <li><code>PUT /api/users/:id</code></li>
+    <li><code>DELETE /api/users/:id</code></li>
+  </ul>
+
+  <h3>Cours</h3>
+  <ul>
+    <li><code>GET /api/courses</code></li>
+    <li><code>GET /api/courses/:id</code></li>
+    <li><code>POST /api/courses</code></li>
+    <li><code>PUT /api/courses/:id</code></li>
+    <li><code>DELETE /api/courses/:id</code></li>
+  </ul>
+
+  <h3>Abonnés</h3>
+  <ul>
+    <li><code>GET /api/subscribers</code></li>
+    <li><code>GET /api/subscribers/:id</code></li>
+    <li><code>POST /api/subscribers</code></li>
+    <li><code>PUT /api/subscribers/:id</code></li>
+    <li><code>DELETE /api/subscribers/:id</code></li>
+  </ul>
+
+  <h2>Format de réponse</h2>
+  <pre>
+{
+  "status": 200,
+  "data": {
+    // contenu
+  }
+}
+  </pre>
+
+  <h2>Gestion des erreurs</h2>
+  <pre>
+{
+  "status": 500,
+  "message": "Description de l'erreur"
+}
+  </pre>
+</div>
