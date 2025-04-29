@@ -23,7 +23,7 @@ db.once("open", () => {
   console.log("Connexion réussie à MongoDB en utilisant Mongoose!");
 });
 db.on("error", (err) => {
-  console.error("❌ Erreur de connexion à MongoDB :", err);
+  console.error(" Erreur de connexion à MongoDB :", err);
 });
 
 // App Express
@@ -80,5 +80,5 @@ app.use(errorController.internalServerError);
 // Démarrage du serveur
 const PORT = app.get("port");
 app.listen(PORT, () => {
-  console.log(`✅ Serveur Express démarré sur http://localhost:${PORT}`);
+  console.log(` Serveur Express démarré sur http://localhost:${PORT}`);
 });
