@@ -5,6 +5,9 @@ const mongoose = require("mongoose"); // Ajout de Mongoose
 const homeController = require("./controllers/homeController");
 const errorController = require("./controllers/errorController");
 const subscribersController = require("./controllers/subscribersController");
+const coursesController = require("./controllers/coursesController");
+const usersController = require("./controllers/usersController");
+
 
 const session = require("express-session");
 const flash = require("connect-flash");
@@ -59,7 +62,7 @@ app.use((req, res, next) => {
 // Routes
 app.get("/", homeController.index);
 app.get("/about", homeController.about);
-app.get("/courses", homeController.courses);
+// app.get("/courses", homeController.courses);
 app.get("/contact", homeController.contact);
 app.post("/contact", homeController.processContact);
 app.get("/faq", homeController.faq);
@@ -75,6 +78,24 @@ app.get("/subscribers/delete/:id", subscribersController.deleteSubscriber);
 app.get('/subscribers/edit/:id', subscribersController.editSubscriber);
 app.post("/subscribers/:id/update", subscribersController.updateSubscriber);
 app.get("/subscribers/edit/:id", subscribersController.editSubscriber);
+// Cours
+app.get("/courses", coursesController.index, coursesController.indexView);
+app.get("/courses/new", coursesController.new);
+app.post("/courses/create", coursesController.create, coursesController.redirectView);
+app.get("/courses/:id", coursesController.show, coursesController.showView);
+app.get("/courses/:id/edit", coursesController.edit);
+app.put("/courses/:id/update", coursesController.update, coursesController.redirectView);
+app.delete("/courses/:id/delete", coursesController.delete, coursesController.redirectView);
+
+// Utilisateurs
+app.get("/users", usersController.index, usersController.indexView);
+app.get("/users/new", usersController.new);
+app.post("/users/create", usersController.create, usersController.redirectView);
+app.get("/users/:id", usersController.show, usersController.showView);
+app.get("/users/:id/edit", usersController.edit);
+app.put("/users/:id/update", usersController.update, usersController.redirectView);
+app.delete("/users/:id/delete", usersController.delete, usersController.redirectView);
+
 
 
 
