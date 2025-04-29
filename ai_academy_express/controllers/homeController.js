@@ -74,33 +74,34 @@ exports.courses = (req, res) => {
 };
 
 exports.contact = (req, res) => {
-  const flashMessages = {
-    success: req.flash('success'),
-    error: req.flash('error'),
-    info: req.flash('info')
-  };
+  // const flashMessages = {
+  //   success: req.flash('success'),
+  //   error: req.flash('error'),
+  //   info: req.flash('info')
+  // };
 
   res.render("contact", {
     pageTitle: "Contact",
-    messages: flashMessages
+    // messages: flashMessages
   });
 };
 
+// 
 exports.processContact = (req, res) => {
-  const { name, email, course, message } = req.body;
+  const { name, email } = req.body;
+  const errors = [];
 
-  // Exemple de validation
-  if (!name || !email) {
-    req.flash("error", "Veuillez remplir tous les champs obligatoires.");
-    return res.redirect("/contact");
-  }
-  
-  if (message && message.length < 10) {
-    req.flash("error", "Le message doit contenir au moins 10 caractères.");
-    return res.redirect("/contact");
+  if (!name || name.trim() === "") errors.push("Le nom est requis.");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("Email invalide.");
+
+  if (errors.length > 0) {
+    return res.status(400).render("contact", {
+      pageTitle: "Contact",
+      errors,
+      formData: req.body
+    });
   }
 
-  req.flash("success", "Message envoyé avec succès !");
   res.render("thanks", {
     pageTitle: "Merci",
     formData: req.body

@@ -61,6 +61,7 @@ app.get("/", homeController.index);
 app.get("/about", homeController.about);
 app.get("/courses", homeController.courses);
 app.get("/contact", homeController.contact);
+app.post("/contact", homeController.processContact);
 app.get("/faq", homeController.faq);
 
 // Routes pour les abonnés
